@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taula periòdica – Practica símbols i noms</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Taula periòdica</h1>
+    <p class="subtitol">Escriu el símbol i el nom dels elements que falten. Només tens el número atòmic com a pista!</p>
+  </header>
+
+  <section class="controls">
+    <label>
+      Dificultat:
+      <select id="dificultat">
+        <option value="facil">Fàcil (15%)</option>
+        <option value="mitja" selected>Mitjà (35%)</option>
+        <option value="dificil">Difícil (60%)</option>
+        <option value="extrem">Extrem (100%)</option>
+      </select>
+    </label>
+    <button id="nova-partida">Nova partida</button>
+    <button id="solucions" class="secundari">Mostrar solucions</button>
+  </section>
+
+  <section class="marcador" aria-live="polite">
+    <span>Encerts: <strong id="encerts">0</strong> / <strong id="total">0</strong></span>
+    <span>Errors: <strong id="errors">0</strong></span>
+    <span>Progrés: <strong id="percent">0%</strong></span>
+  </section>
+  <p id="missatge" class="missatge" hidden></p>
+
+  <main class="contenidor-taula">
+    <div id="taula" class="taula"></div>
+  </main>
+
+  <section id="llegenda" class="llegenda"></section>
+
+  <script src="elements.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

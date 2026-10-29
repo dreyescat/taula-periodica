@@ -1,0 +1,153 @@
+:root {
+  --alcali: #ff8a80;
+  --alcalinoterri: #ffcc80;
+  --transicio: #fff59d;
+  --lantanid: #f8bbd0;
+  --actinid: #e1bee7;
+  --altre-metall: #b0bec5;
+  --metal-loide: #a5d6a7;
+  --no-metall: #80deea;
+  --halogen: #90caf9;
+  --gas-noble: #b39ddb;
+  --correcte: #2e7d32;
+  --incorrecte: #c62828;
+  --revelat: #ef6c00;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 1rem 1.5rem 2rem;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #f5f6fa;
+  color: #222;
+}
+
+header { text-align: center; }
+h1 { margin: 0.2rem 0; }
+.subtitol { margin: 0 0 1rem; color: #555; }
+
+.controls, .marcador {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+select, button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #888;
+}
+button {
+  background: #3949ab;
+  color: white;
+  border-color: #3949ab;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.1); }
+button.secundari { background: white; color: #3949ab; }
+
+.marcador { font-size: 1.05rem; }
+
+.missatge {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--correcte);
+}
+
+.contenidor-taula { overflow-x: auto; padding-bottom: 0.5rem; }
+
+.taula {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(62px, 1fr));
+  grid-template-rows: repeat(7, auto);
+  gap: 3px;
+  min-width: 1170px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.casella {
+  position: relative;
+  aspect-ratio: 1 / 1.1;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 2px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.casella .z {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 0.7rem;
+  color: #333;
+}
+.casella .simbol { font-size: 1.35rem; font-weight: bold; margin-top: 0.5rem; }
+.casella .nom {
+  font-size: 0.6rem;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.casella input {
+  width: 90%;
+  font: inherit;
+  font-weight: bold;
+  text-align: center;
+  padding: 1px 0;
+  border: 2px dashed #555;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.85);
+}
+.casella input.camp-simbol { margin-top: 0.7rem; font-size: 1rem; }
+.casella input.camp-nom { margin-top: 2px; font-size: 0.6rem; font-weight: normal; }
+.casella input::placeholder { color: #999; font-weight: normal; }
+.casella input:focus { outline: none; border-style: solid; border-color: #3949ab; }
+
+.casella.buida { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.35) 0 6px, transparent 6px 12px); }
+
+.casella.correcte { box-shadow: inset 0 0 0 3px var(--correcte); }
+.casella input.correcte { border: 2px solid var(--correcte); color: var(--correcte); background: white; }
+.casella input.incorrecte { border: 2px solid var(--incorrecte); color: var(--incorrecte); }
+.casella input.revelat { border: 2px solid var(--revelat); color: var(--revelat); background: white; }
+
+.alcali { background-color: var(--alcali); }
+.alcalinoterri { background-color: var(--alcalinoterri); }
+.transicio { background-color: var(--transicio); }
+.lantanid { background-color: var(--lantanid); }
+.actinid { background-color: var(--actinid); }
+.altre-metall { background-color: var(--altre-metall); }
+.metal-loide { background-color: var(--metal-loide); }
+.no-metall { background-color: var(--no-metall); }
+.halogen { background-color: var(--halogen); }
+.gas-noble { background-color: var(--gas-noble); }
+
+.llegenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+.llegenda span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.llegenda i {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
