@@ -52,6 +52,9 @@ i, si és correcte, passa sol a la següent casella buida.
 - Les dades es guarden al navegador (`localStorage`): són per a cada ordinador i navegador.
   Amb **Exportar** es descarrega un fitxer JSON i amb **Importar** es pot recuperar o fusionar amb
   l'històric d'un altre ordinador (sense duplicar partides).
+- **Esborrar històric** (cal clicar-lo dues vegades per confirmar) esborra totes les partides i
+  també la llista d'elements fallats de **Repassa els errors**. Aquesta llista no s'inclou a
+  l'exportació.
 
 ## Fitxers
 
