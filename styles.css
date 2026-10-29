@@ -256,7 +256,39 @@ button.perill { background: white; color: #c62828; border-color: #c62828; }
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-.panell-camps { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0.5rem; }
+.panell-cos { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; align-items: center; }
+.panell-camps { display: grid; gap: 0.5rem; }
+
+.mini-taula {
+  display: grid;
+  grid-template-columns: repeat(18, 10px);
+  grid-template-rows: repeat(7, 10px);
+  gap: 1px;
+}
+.mini-taula span { border-radius: 1px; opacity: 0.55; }
+.mini-taula span.mini-buida {
+  opacity: 1;
+  background: white;
+  outline: 1px solid #777;
+  outline-offset: -1px;
+  cursor: pointer;
+}
+.mini-taula span.mini-feta { background: var(--correcte); outline-color: var(--correcte); }
+.mini-taula span.mini-activa {
+  position: relative;
+  z-index: 1;
+  background: #3949ab;
+  outline: 2px solid #3949ab;
+  outline-offset: 0;
+  transform: scale(1.6);
+  animation: parpelleig 1.2s ease-in-out infinite;
+}
+@keyframes parpelleig {
+  50% { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mini-taula span.mini-activa { animation: none; }
+}
 .panell-camps input {
   min-width: 0;
   font: inherit;

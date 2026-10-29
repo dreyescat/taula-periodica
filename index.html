@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
   <title>Taula periòdica – Practica símbols i noms</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -55,11 +55,14 @@
       <span id="panell-element" class="panell-element"></span>
       <button type="button" id="panell-tanca" class="secundari" aria-label="Tanca">✕</button>
     </div>
-    <div class="panell-camps">
-      <input id="panell-simbol" data-camp="simbol" type="text" maxlength="3" placeholder="Símbol"
-             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Símbol">
-      <input id="panell-nom" data-camp="nom" type="text" maxlength="20" placeholder="Nom"
-             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Nom">
+    <div class="panell-cos">
+      <div id="mini-taula" class="mini-taula" aria-hidden="true"></div>
+      <div class="panell-camps">
+        <input id="panell-simbol" data-camp="simbol" type="text" maxlength="3" placeholder="Símbol"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Símbol">
+        <input id="panell-nom" data-camp="nom" type="text" maxlength="20" placeholder="Nom"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Nom">
+      </div>
     </div>
     <div class="panell-accions">
       <button type="submit">Comprova</button>

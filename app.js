@@ -29,6 +29,7 @@ const botoRepas = document.getElementById("repas");
 const panell = document.getElementById("panell-mobil");
 const panellElement = document.getElementById("panell-element");
 const inputsPanell = [...panell.querySelectorAll("input")];
+const miniTaula = document.getElementById("mini-taula");
 const mobil = matchMedia("(max-width: 760px)");
 
 let estat = nouEstat(new Set(), selectDificultat.value);
@@ -231,11 +232,13 @@ function obrePanell(casella) {
   casella.scrollIntoView({ block: "nearest", inline: "center" });
 
   const el = ELEMENTS[inputCasella(casella, "simbol").dataset.z - 1];
-  panellElement.textContent = `Element ${el.z}`;
+  panellElement.textContent = `Element ${el.z} · Grup ${el.columna} · Període ${el.fila}`;
   panellElement.className = `panell-element ${el.categoria}`;
   sincronitzaPanell();
+  actualitzaMiniTaula();
   panell.hidden = false;
   document.body.classList.add("amb-panell");
+  ajustaPanellAlTeclat();
   iniciaCronometre();
   enfocaPanell();
 }
@@ -244,7 +247,43 @@ function tancaPanell() {
   casellaActiva?.classList.remove("activa");
   casellaActiva = null;
   panell.hidden = true;
+  panell.style.bottom = "";
   document.body.classList.remove("amb-panell");
+  actualitzaMiniTaula();
+}
+
+// Taula en miniatura dins el panell: amb el teclat obert, la taula gran queda tapada
+// i aquesta és la referència de quin element s'està contestant.
+function crearMiniTaula() {
+  miniTaula.replaceChildren(...VISIBLES.map((el) => {
+    const quadre = document.createElement("span");
+    quadre.className = `${el.categoria}${estat.buits.has(el.z) ? " mini-buida" : ""}`;
+    quadre.style.gridRow = el.fila;
+    quadre.style.gridColumn = el.columna;
+    quadre.dataset.z = el.z;
+    return quadre;
+  }));
+}
+
+function casellaDeZ(z) {
+  return taula.querySelector(`input[data-camp="simbol"][data-z="${z}"]`)?.parentElement;
+}
+
+function actualitzaMiniTaula() {
+  const zActiva = casellaActiva ? inputCasella(casellaActiva, "simbol").dataset.z : null;
+  for (const quadre of miniTaula.querySelectorAll(".mini-buida")) {
+    const casella = casellaDeZ(quadre.dataset.z);
+    quadre.classList.toggle("mini-feta", !!casella && !casellaPendent(casella));
+    quadre.classList.toggle("mini-activa", quadre.dataset.z === zActiva);
+  }
+}
+
+// iOS no redimensiona la pàgina en obrir el teclat: s'enganxa el panell a sobre del teclat.
+function ajustaPanellAlTeclat() {
+  const vv = window.visualViewport;
+  if (!vv || panell.hidden) return;
+  const tapat = window.innerHeight - vv.height - vv.offsetTop;
+  panell.style.bottom = `${Math.max(0, tapat)}px`;
 }
 
 // Obre la següent casella pendent (per número atòmic, tornant a l'inici); si no n'hi ha, tanca.
@@ -279,9 +318,20 @@ panell.addEventListener("submit", (e) => {
   else if (!casellaPendent(casella)) obreSeguent();
   else {
     sincronitzaPanell();
+    actualitzaMiniTaula();
     enfocaPanell();
   }
 });
+
+// Evita que el toc a la mini-taula tregui el focus de l'input (i tanqui el teclat).
+miniTaula.addEventListener("pointerdown", (e) => e.preventDefault());
+miniTaula.addEventListener("click", (e) => {
+  const quadre = e.target.closest(".mini-buida");
+  const casella = quadre && casellaDeZ(quadre.dataset.z);
+  if (casella && casellaPendent(casella)) obrePanell(casella);
+});
+window.visualViewport?.addEventListener("resize", ajustaPanellAlTeclat);
+window.visualViewport?.addEventListener("scroll", ajustaPanellAlTeclat);
 
 for (const inp of inputsPanell) {
   inp.addEventListener("input", () => inp.classList.remove("incorrecte"));
@@ -471,6 +521,7 @@ function novaPartida(zsRepas = null) {
     casella.style.gridColumn = el.columna;
     taula.appendChild(casella);
   }
+  crearMiniTaula();
 
   actualitzaMarcador();
   actualitzaBotoRepas();

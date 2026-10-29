@@ -39,7 +39,10 @@ i obre <http://localhost:8000>.
 
 En pantalles estretes la taula es mostra compacta (només número atòmic i símbol). Toca una casella
 buida per obrir un panell a la part de baix on escriure el símbol i el nom; **Comprova** corregeix
-i, si és correcte, passa sol a la següent casella buida.
+i, si és correcte, passa sol a la següent casella buida. El panell inclou una taula en miniatura
+amb l'element actual ressaltat (i el grup i el període), perquè quan surt el teclat i tapa la
+taula gran se sàpiga sempre quin element s'està contestant; tocant-hi un altre quadradet buit s'hi
+salta.
 
 ## Millors resultats i històric
 
