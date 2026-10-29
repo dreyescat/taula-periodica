@@ -109,8 +109,11 @@ function millors(dificultat, n = 10) {
     .slice(0, n);
 }
 
+// Format del fitxer: { versio: 2, partides: [...], falles: { z: n } }.
+// La versió 1 (antiga) era només la llista de partides.
 function exportaHistoric() {
-  const blob = new Blob([JSON.stringify(llegeixHistoric(), null, 2)], { type: "application/json" });
+  const dades = { versio: 2, partides: llegeixHistoric(), falles: llegeixFalles() };
+  const blob = new Blob([JSON.stringify(dades, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const enllac = document.createElement("a");
   enllac.href = url;
@@ -121,14 +124,31 @@ function exportaHistoric() {
   URL.revokeObjectURL(url);
 }
 
-// Fusiona les partides d'un fitxer JSON amb l'històric actual (sense duplicar per id).
-// Retorna el nombre de partides noves afegides.
+// Fusiona un fitxer exportat amb les dades actuals: les partides sense duplicar per id i, per a
+// cada element, es queda el nombre de falles més alt (així reimportar el mateix fitxer no suma).
+// Retorna quantes partides i quants elements fallats s'han afegit o actualitzat.
 async function importaHistoric(fitxer) {
   const dades = JSON.parse(await fitxer.text());
-  if (!Array.isArray(dades)) throw new Error("El fitxer no conté una llista de partides.");
+  const partides = Array.isArray(dades) ? dades : dades?.partides;
+  if (!Array.isArray(partides)) throw new Error("El fitxer no conté una llista de partides.");
+
   const actuals = llegeixHistoric();
   const ids = new Set(actuals.map((p) => p.id));
-  const noves = dades.filter((p) => esPartidaValida(p) && !ids.has(p.id));
+  const noves = partides.filter((p) => esPartidaValida(p) && !ids.has(p.id));
   desaHistoric([...actuals, ...noves]);
-  return noves.length;
+
+  let fallesCanviades = 0;
+  const fallesFitxer = Array.isArray(dades) ? {} : dades.falles;
+  if (fallesFitxer && typeof fallesFitxer === "object") {
+    const falles = llegeixFalles();
+    for (const [z, n] of Object.entries(fallesFitxer)) {
+      const valid = Number.isInteger(n) && n > 0 && Number.isInteger(Number(z)) && z >= 1 && z <= 118;
+      if (valid && n > (falles[z] || 0)) {
+        falles[z] = n;
+        fallesCanviades++;
+      }
+    }
+    desaFalles(falles);
+  }
+  return { partides: noves.length, falles: fallesCanviades };
 }

@@ -521,8 +521,11 @@ inputImportar.addEventListener("change", async () => {
   inputImportar.value = "";
   if (!fitxer) return;
   try {
-    const noves = await importaHistoric(fitxer);
-    elAvisResultats.textContent = `S'han importat ${noves} partide${noves === 1 ? "" : "s"} noves.`;
+    const importat = await importaHistoric(fitxer);
+    const partides = importat.partides === 1 ? "partida nova" : "partides noves";
+    const elements = importat.falles === 1 ? "element" : "elements";
+    elAvisResultats.textContent = `Importat: ${importat.partides} ${partides} i ${importat.falles} ${elements} per repassar.`;
+    actualitzaBotoRepas();
   } catch {
     elAvisResultats.textContent = "No s'ha pogut importar el fitxer: no és un històric vàlid.";
   }

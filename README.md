@@ -50,11 +50,13 @@ i, si és correcte, passa sol a la següent casella buida.
 - Hi ha un rànquing (top 10) per a cada dificultat, ordenat per més encerts, després menys errors i
   després menys temps. A sota hi ha l'històric complet de partides.
 - Les dades es guarden al navegador (`localStorage`): són per a cada ordinador i navegador.
-  Amb **Exportar** es descarrega un fitxer JSON i amb **Importar** es pot recuperar o fusionar amb
-  l'històric d'un altre ordinador (sense duplicar partides).
+  Amb **Exportar** es descarrega un fitxer JSON amb les partides i la llista d'elements fallats de
+  **Repassa els errors**. Amb **Importar** es pot recuperar o fusionar amb les dades d'un altre
+  ordinador: les partides no es dupliquen i, per a cada element fallat, es queda el nombre de
+  falles més alt. També s'accepten els fitxers exportats amb versions anteriors (només partides).
 - **Esborrar històric** (cal clicar-lo dues vegades per confirmar) esborra totes les partides i
-  també la llista d'elements fallats de **Repassa els errors**. Aquesta llista no s'inclou a
-  l'exportació.
+  també la llista d'elements fallats de **Repassa els errors**. Exporta-les abans si les vols
+  conservar.
 
 ## Fitxers
 
