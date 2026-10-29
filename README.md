@@ -8,7 +8,9 @@ sempre apareixen omplerts (no es pregunten mai).
 
 ## Com executar-la
 
-Sense instal·lar res: obre `index.html` amb el navegador (doble clic).
+Versió en línia: <https://dreyescat.github.io/taula-periodica/>
+
+En local, sense instal·lar res: obre `index.html` amb el navegador (doble clic).
 
 O bé amb un servidor local:
 
