@@ -163,7 +163,7 @@ function actualitzaMarcador() {
   if (!estat.finalitzada && total && estat.encerts === total) {
     estat.finalitzada = true;
     elMissatge.textContent = estat.errors === 0
-      ? "🎉 Perfecte! Tots els símbols correctes sense cap error!"
+      ? "🎉 Perfecte! Tots els símbols i noms correctes sense cap error!"
       : `🎉 Molt bé! Has completat la taula amb ${estat.errors} error${estat.errors === 1 ? "" : "s"}.`;
     elMissatge.hidden = false;
     acabaPartida(true);
