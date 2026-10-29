@@ -29,9 +29,22 @@ i obre <http://localhost:8000>.
 - Verd = correcte, vermell = incorrecte (pots tornar-ho a provar).
 - **Mostrar solucions** omple les caselles que falten (en taronja).
 
+## Millors resultats i històric
+
+- El temps comença a comptar quan es fa clic a la primera casella buida.
+- En acabar una partida (o prémer **Mostrar solucions**) es demana el nom per desar el resultat;
+  es recorda l'últim nom usat. Si es comença una partida nova sense desar, es desa amb l'últim nom
+  (o "Anònim"). Una partida deixada a mitges es desa com a *abandonada*.
+- Hi ha un rànquing (top 10) per a cada dificultat, ordenat per més encerts, després menys errors i
+  després menys temps. A sota hi ha l'històric complet de partides.
+- Les dades es guarden al navegador (`localStorage`): són per a cada ordinador i navegador.
+  Amb **Exportar** es descarrega un fitxer JSON i amb **Importar** es pot recuperar o fusionar amb
+  l'històric d'un altre ordinador (sense duplicar partides).
+
 ## Fitxers
 
 - `index.html` – estructura de la pàgina
 - `styles.css` – estils i colors per categoria
 - `elements.js` – dades dels 118 elements i càlcul de la posició a la taula
-- `app.js` – lògica del joc
+- `historic.js` – desat de l'històric al navegador, rànquing, exportar/importar
+- `app.js` – lògica del joc, cronòmetre i pantalla de resultats

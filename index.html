@@ -30,8 +30,18 @@
     <span>Encerts: <strong id="encerts">0</strong> / <strong id="total">0</strong></span>
     <span>Errors: <strong id="errors">0</strong></span>
     <span>Progrés: <strong id="percent">0%</strong></span>
+    <span>Temps: <strong id="temps">00:00</strong></span>
   </section>
   <p id="missatge" class="missatge" hidden></p>
+
+  <form id="desar-partida" class="desar-partida" hidden>
+    <p id="resum-partida"></p>
+    <label>
+      El teu nom:
+      <input id="nom-jugador" type="text" maxlength="30" autocomplete="off" placeholder="Anònim">
+    </label>
+    <button type="submit">Desar resultat</button>
+  </form>
 
   <main class="contenidor-taula">
     <div id="taula" class="taula"></div>
@@ -39,7 +49,41 @@
 
   <section id="llegenda" class="llegenda"></section>
 
+  <section class="resultats">
+    <h2>Millors resultats</h2>
+    <div id="pestanyes" class="pestanyes" role="group" aria-label="Dificultat del rànquing"></div>
+    <div class="contenidor-resultats">
+      <table id="ranquing">
+        <thead>
+          <tr><th>#</th><th>Nom</th><th>Encerts</th><th>Errors</th><th>Temps</th><th>Data</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <details class="historic">
+      <summary>Històric de partides</summary>
+      <div class="contenidor-resultats">
+        <table id="historic">
+          <thead>
+            <tr><th>Data</th><th>Nom</th><th>Dificultat</th><th>Encerts</th><th>Errors</th><th>Temps</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </details>
+
+    <div class="accions-historic">
+      <button id="exportar" type="button" class="secundari">Exportar</button>
+      <button id="importar" type="button" class="secundari">Importar</button>
+      <input id="fitxer-importar" type="file" accept=".json,application/json" hidden>
+      <button id="esborrar" type="button" class="perill">Esborrar històric</button>
+    </div>
+    <p id="avis-resultats" class="avis" aria-live="polite"></p>
+  </section>
+
   <script src="elements.js"></script>
+  <script src="historic.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
