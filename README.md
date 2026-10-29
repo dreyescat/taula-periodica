@@ -35,6 +35,12 @@ i obre <http://localhost:8000>.
   (cal encertar-lo tantes vegades com l'hagis fallat). Aquestes partides surten a l'històric com
   a *Repàs*, però no al rànquing.
 
+## Al mòbil
+
+En pantalles estretes la taula es mostra compacta (només número atòmic i símbol). Toca una casella
+buida per obrir un panell a la part de baix on escriure el símbol i el nom; **Comprova** corregeix
+i, si és correcte, passa sol a la següent casella buida.
+
 ## Millors resultats i històric
 
 - El temps comença a comptar quan es fa clic a la primera casella buida.

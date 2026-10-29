@@ -234,3 +234,68 @@ button.secundari { background: white; color: #3949ab; }
 button.perill { background: white; color: #c62828; border-color: #c62828; }
 
 .avis { text-align: center; color: #555; min-height: 1.2em; }
+
+/* ---- Panell d'edició (només mòbil) ---- */
+.panell-mobil {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background: white;
+  border-top: 2px solid #3949ab;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+}
+.panell-capcalera { display: flex; justify-content: space-between; align-items: center; }
+.panell-element {
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+.panell-camps { display: grid; grid-template-columns: 5.5rem 1fr; gap: 0.5rem; }
+.panell-camps input {
+  min-width: 0;
+  font: inherit;
+  font-size: 1.15rem;
+  padding: 0.5rem;
+  border: 2px solid #888;
+  border-radius: 6px;
+}
+.panell-camps input:focus { outline: none; border-color: #3949ab; }
+.panell-camps input.correcte { border-color: var(--correcte); color: var(--correcte); }
+.panell-camps input.incorrecte { border-color: var(--incorrecte); color: var(--incorrecte); }
+.panell-accions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.panell-accions button { padding: 0.6rem; }
+
+@media (max-width: 760px) {
+  body { padding: 0.75rem 1rem 2rem; }
+  body.amb-panell { padding-bottom: 12rem; }
+  h1 { font-size: 1.5rem; }
+
+  .taula {
+    grid-template-columns: repeat(18, minmax(30px, 1fr));
+    gap: 2px;
+    min-width: 574px;
+  }
+  .casella { aspect-ratio: 1; padding: 1px; border-radius: 3px; }
+  .casella .z { font-size: 0.5rem; top: 1px; left: 2px; }
+  .casella .simbol { font-size: 0.85rem; margin-top: 0.35rem; }
+  .casella .nom, .casella input.camp-nom { display: none; }
+
+  /* Els inputs de la graella només mostren l'estat: s'escriu al panell. */
+  .casella.buida { cursor: pointer; }
+  .casella input.camp-simbol {
+    pointer-events: none;
+    width: 100%;
+    margin-top: 0.45rem;
+    padding: 0;
+    font-size: 0.75rem;
+    border-width: 1px;
+  }
+  .casella input::placeholder { color: transparent; }
+  .casella.activa { outline: 3px solid #3949ab; outline-offset: 1px; z-index: 1; }
+}

@@ -26,12 +26,18 @@ const cosHistoric = document.querySelector("#historic tbody");
 const elAvisResultats = document.getElementById("avis-resultats");
 const botoEsborrar = document.getElementById("esborrar");
 const botoRepas = document.getElementById("repas");
+const panell = document.getElementById("panell-mobil");
+const panellElement = document.getElementById("panell-element");
+const inputsPanell = [...panell.querySelectorAll("input")];
+const mobil = matchMedia("(max-width: 760px)");
 
 let estat = nouEstat(new Set(), selectDificultat.value);
 // Partida acabada pendent que l'alumne hi posi el nom.
 let partidaPendent = null;
 let dificultatRanquing = selectDificultat.value;
 let cronometre = null;
+// Casella buida que s'està editant al panell mòbil.
+let casellaActiva = null;
 
 function nouEstat(buits, dificultat) {
   return { buits, dificultat, encerts: 0, errors: 0, respostes: 0, finalitzada: false, inici: null };
@@ -190,6 +196,99 @@ function actualitzaMarcador() {
     acabaPartida(true);
   }
 }
+
+// ---- Panell d'edició per a mòbil ----
+
+function casellaPendent(casella) {
+  return [...casella.querySelectorAll("input")].some((i) => !i.disabled);
+}
+
+function inputCasella(casella, camp) {
+  return casella.querySelector(`input[data-camp="${camp}"]`);
+}
+
+// Copia l'estat dels inputs de la casella als del panell.
+function sincronitzaPanell() {
+  for (const inp of inputsPanell) {
+    const origen = inputCasella(casellaActiva, inp.dataset.camp);
+    inp.value = origen.value;
+    inp.disabled = origen.disabled;
+    for (const classe of ["correcte", "incorrecte", "revelat"]) {
+      inp.classList.toggle(classe, origen.classList.contains(classe));
+    }
+  }
+}
+
+function enfocaPanell() {
+  const pendent = inputsPanell.find((i) => !i.disabled);
+  if (pendent) pendent.focus();
+}
+
+function obrePanell(casella) {
+  casellaActiva?.classList.remove("activa");
+  casellaActiva = casella;
+  casella.classList.add("activa");
+  casella.scrollIntoView({ block: "nearest", inline: "center" });
+
+  const el = ELEMENTS[inputCasella(casella, "simbol").dataset.z - 1];
+  panellElement.textContent = `Element ${el.z}`;
+  panellElement.className = `panell-element ${el.categoria}`;
+  sincronitzaPanell();
+  panell.hidden = false;
+  document.body.classList.add("amb-panell");
+  iniciaCronometre();
+  enfocaPanell();
+}
+
+function tancaPanell() {
+  casellaActiva?.classList.remove("activa");
+  casellaActiva = null;
+  panell.hidden = true;
+  document.body.classList.remove("amb-panell");
+}
+
+// Obre la següent casella pendent (per número atòmic, tornant a l'inici); si no n'hi ha, tanca.
+function obreSeguent() {
+  const pendents = [...taula.querySelectorAll(".casella.buida")].filter(casellaPendent);
+  const zActual = casellaActiva ? Number(inputCasella(casellaActiva, "simbol").dataset.z) : 0;
+  const zDe = (c) => Number(inputCasella(c, "simbol").dataset.z);
+  const altres = pendents.filter((c) => c !== casellaActiva).sort((a, b) => zDe(a) - zDe(b));
+  const seguent = altres.find((c) => zDe(c) > zActual) || altres[0];
+  if (seguent) obrePanell(seguent);
+  else tancaPanell();
+}
+
+taula.addEventListener("click", (e) => {
+  if (!mobil.matches) return;
+  const casella = e.target.closest(".casella.buida");
+  if (casella && casellaPendent(casella)) obrePanell(casella);
+});
+
+panell.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!casellaActiva) return;
+  const casella = casellaActiva;
+  const el = ELEMENTS[inputCasella(casella, "simbol").dataset.z - 1];
+  for (const inp of inputsPanell) {
+    const origen = inputCasella(casella, inp.dataset.camp);
+    if (origen.disabled) continue;
+    origen.value = inp.value;
+    comprova(origen, el, casella);
+  }
+  if (estat.finalitzada) tancaPanell();
+  else if (!casellaPendent(casella)) obreSeguent();
+  else {
+    sincronitzaPanell();
+    enfocaPanell();
+  }
+});
+
+for (const inp of inputsPanell) {
+  inp.addEventListener("input", () => inp.classList.remove("incorrecte"));
+}
+document.getElementById("panell-seguent").addEventListener("click", obreSeguent);
+document.getElementById("panell-tanca").addEventListener("click", tancaPanell);
+mobil.addEventListener("change", () => { if (!mobil.matches) tancaPanell(); });
 
 // ---- Cronòmetre ----
 
@@ -350,6 +449,7 @@ function novaPartida(zsRepas = null) {
   if (!estat.finalitzada && hiHaJugades()) acabaPartida(false);
   desaPendentSenseFormulari();
   aturaCronometre();
+  tancaPanell();
   elTemps.textContent = formataTemps(0);
 
   let buits;
@@ -388,6 +488,7 @@ function mostrarSolucions() {
     input.classList.add("revelat");
     casella.title = `${el.nom} (${el.z})`;
   }
+  tancaPanell();
   if (!estat.finalitzada) acabaPartida(false);
   actualitzaBotoRepas();
 }

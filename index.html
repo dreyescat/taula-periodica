@@ -50,6 +50,23 @@
 
   <section id="llegenda" class="llegenda"></section>
 
+  <form id="panell-mobil" class="panell-mobil" hidden>
+    <div class="panell-capcalera">
+      <span id="panell-element" class="panell-element"></span>
+      <button type="button" id="panell-tanca" class="secundari" aria-label="Tanca">✕</button>
+    </div>
+    <div class="panell-camps">
+      <input id="panell-simbol" data-camp="simbol" type="text" maxlength="3" placeholder="Símbol"
+             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Símbol">
+      <input id="panell-nom" data-camp="nom" type="text" maxlength="20" placeholder="Nom"
+             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Nom">
+    </div>
+    <div class="panell-accions">
+      <button type="submit">Comprova</button>
+      <button type="button" id="panell-seguent" class="secundari">Següent ›</button>
+    </div>
+  </form>
+
   <section class="resultats">
     <h2>Millors resultats</h2>
     <div id="pestanyes" class="pestanyes" role="group" aria-label="Dificultat del rànquing"></div>
