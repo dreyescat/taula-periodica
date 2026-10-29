@@ -1,6 +1,7 @@
 // Històric de partides guardat al localStorage del navegador.
 const CLAU_HISTORIC = "taula-periodica:historic";
 const CLAU_NOM = "taula-periodica:nom";
+const CLAU_FALLES = "taula-periodica:falles";
 
 function llegeixHistoric() {
   try {
@@ -25,7 +26,53 @@ function afegeixPartida(partida) {
 }
 
 function esborraHistoric() {
+  try {
+    localStorage.removeItem(CLAU_FALLES);
+  } catch {
+    // Sense localStorage no hi ha falles guardades.
+  }
   return desaHistoric([]);
+}
+
+// ---- Falles per element (per al mode "Repassa els errors") ----
+
+function llegeixFalles() {
+  try {
+    const dades = JSON.parse(localStorage.getItem(CLAU_FALLES) || "{}");
+    return dades && typeof dades === "object" && !Array.isArray(dades) ? dades : {};
+  } catch {
+    return {};
+  }
+}
+
+function desaFalles(falles) {
+  try {
+    localStorage.setItem(CLAU_FALLES, JSON.stringify(falles));
+  } catch {
+    // Sense localStorage el repàs simplement no està disponible.
+  }
+}
+
+function sumaFalla(z) {
+  const falles = llegeixFalles();
+  falles[z] = (falles[z] || 0) + 1;
+  desaFalles(falles);
+}
+
+function restaFalla(z) {
+  const falles = llegeixFalles();
+  if (!falles[z]) return;
+  falles[z] -= 1;
+  if (falles[z] <= 0) delete falles[z];
+  desaFalles(falles);
+}
+
+// Números atòmics amb falles pendents, de més a menys falles.
+function elementsAFallar() {
+  return Object.entries(llegeixFalles())
+    .filter(([, n]) => Number.isFinite(n) && n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([z]) => Number(z));
 }
 
 function nomRecordat() {

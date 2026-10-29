@@ -1,5 +1,8 @@
 const PERCENTATGES = { facil: 0.15, mitja: 0.35, dificil: 0.6, extrem: 1 };
 const DIFICULTATS = { facil: "Fàcil", mitja: "Mitjà", dificil: "Difícil", extrem: "Extrem" };
+// Les partides de repàs surten a l'històric però no al rànquing (el total de buits varia).
+const REPAS = "repas";
+const ETIQUETES_DIFICULTAT = { ...DIFICULTATS, [REPAS]: "Repàs" };
 
 // No es mostren les files dels lantànids (fila 9) ni dels actínids (fila 10).
 const VISIBLES = ELEMENTS.filter((e) => e.fila <= 7);
@@ -22,6 +25,7 @@ const cosRanquing = document.querySelector("#ranquing tbody");
 const cosHistoric = document.querySelector("#historic tbody");
 const elAvisResultats = document.getElementById("avis-resultats");
 const botoEsborrar = document.getElementById("esborrar");
+const botoRepas = document.getElementById("repas");
 
 let estat = nouEstat(new Set(), selectDificultat.value);
 // Partida acabada pendent que l'alumne hi posi el nom.
@@ -135,12 +139,29 @@ function comprova(input, el, casella) {
       casella.classList.add("correcte");
       casella.title = `${el.nom} (${el.z})`;
       estat.encerts++;
+      // Encertat a la primera: un pas més per treure'l de la llista de repàs.
+      if (!casella.dataset.fallat) restaFalla(el.z);
     }
   } else if (!input.classList.contains("incorrecte")) {
     input.classList.add("incorrecte");
     estat.errors++;
+    marcaFallat(casella, el.z);
   }
   actualitzaMarcador();
+  actualitzaBotoRepas();
+}
+
+// Compta una falla per a l'element, com a màxim un cop per partida.
+function marcaFallat(casella, z) {
+  if (casella.dataset.fallat) return;
+  casella.dataset.fallat = "1";
+  sumaFalla(z);
+}
+
+function actualitzaBotoRepas() {
+  const n = elementsAFallar().length;
+  botoRepas.textContent = `Repassa els errors (${n})`;
+  botoRepas.disabled = n === 0;
 }
 
 // Passa al següent camp pendent (símbol → nom → element buit següent), tornant a l'inici al final.
@@ -236,7 +257,7 @@ function desaPartida(partida, nom) {
   if (nom.trim()) recordaNom(partida.nom);
   const desada = afegeixPartida(partida);
   elAvisResultats.textContent = desada ? "" : "No s'ha pogut desar la partida (el navegador no permet guardar dades).";
-  dificultatRanquing = partida.dificultat;
+  if (partida.dificultat in DIFICULTATS) dificultatRanquing = partida.dificultat;
   mostraResultats(partida.id);
 }
 
@@ -301,7 +322,7 @@ function mostraResultats(destacat = null) {
 
   const totes = llegeixHistoric().sort((a, b) => b.data.localeCompare(a.data));
   cosHistoric.replaceChildren(...totes.map((p) => filaResultat([
-    formataData(p.data), celaNom(p), DIFICULTATS[p.dificultat] || p.dificultat,
+    formataData(p.data), celaNom(p), ETIQUETES_DIFICULTAT[p.dificultat] || p.dificultat,
     `${p.encerts}/${p.total}`, p.errors, formataTemps(p.segons),
   ], p, destacat)));
   if (!totes.length) {
@@ -323,17 +344,24 @@ function crearPestanyes() {
   }
 }
 
-function novaPartida() {
+// Sense llista, els buits es trien a l'atzar segons la dificultat; amb llista, és una partida de repàs.
+function novaPartida(zsRepas = null) {
   // Una partida a mitges amb alguna jugada es desa com a abandonada.
   if (!estat.finalitzada && hiHaJugades()) acabaPartida(false);
   desaPendentSenseFormulari();
   aturaCronometre();
   elTemps.textContent = formataTemps(0);
 
-  const percentatge = PERCENTATGES[selectDificultat.value];
-  const quantitat = Math.round(PREGUNTABLES.length * percentatge);
-  const buits = new Set(barreja(PREGUNTABLES.map((e) => e.z)).slice(0, quantitat));
-  estat = nouEstat(buits, selectDificultat.value);
+  let buits;
+  if (zsRepas) {
+    buits = new Set(zsRepas);
+    estat = nouEstat(buits, REPAS);
+  } else {
+    const percentatge = PERCENTATGES[selectDificultat.value];
+    const quantitat = Math.round(PREGUNTABLES.length * percentatge);
+    buits = new Set(barreja(PREGUNTABLES.map((e) => e.z)).slice(0, quantitat));
+    estat = nouEstat(buits, selectDificultat.value);
+  }
   elMissatge.hidden = true;
 
   taula.innerHTML = "";
@@ -345,12 +373,15 @@ function novaPartida() {
   }
 
   actualitzaMarcador();
+  actualitzaBotoRepas();
 }
 
 function mostrarSolucions() {
   for (const input of taula.querySelectorAll("input:not(:disabled)")) {
     const el = ELEMENTS[input.dataset.z - 1];
     const casella = input.parentElement;
+    // Si no se l'ha sabut, compta com a falla.
+    marcaFallat(casella, el.z);
     input.value = CAMPS[input.dataset.camp].solucio(el);
     input.disabled = true;
     input.classList.remove("incorrecte");
@@ -358,6 +389,7 @@ function mostrarSolucions() {
     casella.title = `${el.nom} (${el.z})`;
   }
   if (!estat.finalitzada) acabaPartida(false);
+  actualitzaBotoRepas();
 }
 
 function crearLlegenda() {
@@ -371,7 +403,8 @@ function crearLlegenda() {
   }
 }
 
-document.getElementById("nova-partida").addEventListener("click", novaPartida);
+document.getElementById("nova-partida").addEventListener("click", () => novaPartida());
+botoRepas.addEventListener("click", () => novaPartida(elementsAFallar()));
 document.getElementById("solucions").addEventListener("click", mostrarSolucions);
 selectDificultat.addEventListener("change", () => {
   dificultatRanquing = selectDificultat.value;
@@ -410,6 +443,7 @@ botoEsborrar.addEventListener("click", () => {
   confirmacioEsborrar = null;
   botoEsborrar.textContent = "Esborrar històric";
   esborraHistoric();
+  actualitzaBotoRepas();
   elAvisResultats.textContent = "Històric esborrat.";
   mostraResultats();
 });

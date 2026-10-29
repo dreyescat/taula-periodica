@@ -52,6 +52,7 @@ button {
   cursor: pointer;
 }
 button:hover { filter: brightness(1.1); }
+button:disabled { opacity: 0.5; cursor: default; filter: none; }
 button.secundari { background: white; color: #3949ab; }
 
 .marcador { font-size: 1.05rem; }

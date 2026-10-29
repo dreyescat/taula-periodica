@@ -30,6 +30,10 @@ i obre <http://localhost:8000>.
 - Un element compta com a encert quan el símbol i el nom són correctes.
 - Verd = correcte, vermell = incorrecte (pots tornar-ho a provar).
 - **Mostrar solucions** omple les caselles que falten (en taronja).
+- **Repassa els errors** comença una partida només amb els elements on t'has equivocat o que has
+  hagut de revelar. Cada vegada que n'encertes un a la primera surt una mica de la llista
+  (cal encertar-lo tantes vegades com l'hagis fallat). Aquestes partides surten a l'històric com
+  a *Repàs*, però no al rànquing.
 
 ## Millors resultats i històric
 
