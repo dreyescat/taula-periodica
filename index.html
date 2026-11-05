@@ -3,16 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
-  <title>Taula periòdica – Practica símbols i noms</title>
+  <title>Taula periòdica – Practica símbols, noms i valències</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
     <h1>Taula periòdica</h1>
-    <p class="subtitol">Escriu el símbol i el nom dels elements que falten. Només tens el número atòmic com a pista!</p>
+    <p id="subtitol" class="subtitol">Escriu el símbol i el nom dels elements que falten. Només tens el número atòmic com a pista!</p>
   </header>
 
   <section class="controls">
+    <label>
+      Practica:
+      <select id="mode">
+        <option value="simbols">Símbols i noms</option>
+        <option value="valencies">Valències</option>
+      </select>
+    </label>
     <label>
       Dificultat:
       <select id="dificultat">
@@ -62,6 +69,8 @@
                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Símbol">
         <input id="panell-nom" data-camp="nom" type="text" maxlength="20" placeholder="Nom"
                autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Nom">
+        <input id="panell-valencies" data-camp="valencies" type="text" inputmode="decimal" maxlength="15"
+               placeholder="Valències: 2,3…" autocomplete="off" spellcheck="false" aria-label="Valències" hidden>
       </div>
     </div>
     <div class="panell-accions">
@@ -72,6 +81,7 @@
 
   <section class="resultats">
     <h2>Millors resultats</h2>
+    <div id="pestanyes-mode" class="pestanyes" role="group" aria-label="Mode del rànquing"></div>
     <div id="pestanyes" class="pestanyes" role="group" aria-label="Dificultat del rànquing"></div>
     <div class="contenidor-resultats">
       <table id="ranquing">

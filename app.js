@@ -4,6 +4,22 @@ const DIFICULTATS = { facil: "Fàcil", mitja: "Mitjà", dificil: "Difícil", ext
 const REPAS = "repas";
 const ETIQUETES_DIFICULTAT = { ...DIFICULTATS, [REPAS]: "Repàs" };
 
+// Què es practica: quins camps s'omplen a cada casella buida i els textos propis del mode.
+const MODES = {
+  simbols: {
+    nom: "Símbols i noms",
+    camps: ["simbol", "nom"],
+    subtitol: "Escriu el símbol i el nom dels elements que falten. Només tens el número atòmic com a pista!",
+    perfecte: "Tots els símbols i noms correctes sense cap error!",
+  },
+  valencies: {
+    nom: "Valències",
+    camps: ["valencies"],
+    subtitol: "Escriu les valències dels elements que falten (p. ex. 2,3). Els gasos nobles tenen valència 0.",
+    perfecte: "Totes les valències correctes sense cap error!",
+  },
+};
+
 // No es mostren les files dels lantànids (fila 9) ni dels actínids (fila 10).
 const VISIBLES = ELEMENTS.filter((e) => e.fila <= 7);
 // Els elements del 104 al 118 sempre es mostren i no es pregunten mai.
@@ -11,6 +27,9 @@ const PREGUNTABLES = VISIBLES.filter((e) => e.z < 104);
 
 const taula = document.getElementById("taula");
 const selectDificultat = document.getElementById("dificultat");
+const selectMode = document.getElementById("mode");
+const elSubtitol = document.getElementById("subtitol");
+const elPestanyesMode = document.getElementById("pestanyes-mode");
 const elEncerts = document.getElementById("encerts");
 const elTotal = document.getElementById("total");
 const elErrors = document.getElementById("errors");
@@ -32,16 +51,18 @@ const inputsPanell = [...panell.querySelectorAll("input")];
 const miniTaula = document.getElementById("mini-taula");
 const mobil = matchMedia("(max-width: 760px)");
 
-let estat = nouEstat(new Set(), selectDificultat.value);
+if (modeRecordat() in MODES) selectMode.value = modeRecordat();
+let estat = nouEstat(new Set(), selectDificultat.value, selectMode.value);
 // Partida acabada pendent que l'alumne hi posi el nom.
 let partidaPendent = null;
 let dificultatRanquing = selectDificultat.value;
+let modeRanquing = selectMode.value;
 let cronometre = null;
 // Casella buida que s'està editant al panell mòbil.
 let casellaActiva = null;
 
-function nouEstat(buits, dificultat) {
-  return { buits, dificultat, encerts: 0, errors: 0, respostes: 0, finalitzada: false, inici: null };
+function nouEstat(buits, dificultat, mode) {
+  return { buits, dificultat, mode, encerts: 0, errors: 0, respostes: 0, finalitzada: false, inici: null };
 }
 
 function barreja(llista) {
@@ -63,11 +84,16 @@ function normalitza(text) {
 function crearCasellaPlena(el) {
   const casella = document.createElement("div");
   casella.className = `casella ${el.categoria}`;
+  casella.dataset.z = el.z;
   casella.title = `${el.nom} (${el.z})`;
   casella.innerHTML = `
     <span class="z">${el.z}</span>
     <span class="simbol">${el.simbol}</span>
     <span class="nom">${el.nom}</span>`;
+  // En mode valències es veuen les dels elements coneguts, per descobrir el patró del grup.
+  if (estat.mode === "valencies" && el.valencies) {
+    casella.insertAdjacentHTML("beforeend", `<span class="valencies">${el.valencies.join(", ")}</span>`);
+  }
   return casella;
 }
 
@@ -93,19 +119,38 @@ const CAMPS = {
     esCorrecte: (valor, el) => normalitzaNom(valor) === normalitzaNom(el.nom),
     solucio: (el) => el.nom,
   },
+  valencies: {
+    etiqueta: "Valències",
+    placeholder: "?",
+    maxLength: 15,
+    esCorrecte: (valor, el) => mateixesValencies(valor, el.valencies),
+    solucio: (el) => el.valencies.join(", "),
+  },
 };
+
+// Cap valència passa de 8, així que cada xifra és una valència: "2,3", "2 3", "3-2" i "23" valen el mateix.
+function mateixesValencies(text, valencies) {
+  const escrites = [...new Set((text.match(/\d/g) || []).map(Number))].sort((a, b) => a - b);
+  const correctes = [...valencies].sort((a, b) => a - b);
+  return escrites.length === correctes.length && escrites.every((v, i) => v === correctes[i]);
+}
 
 function crearCasellaBuida(el) {
   const casella = document.createElement("div");
   casella.className = `casella buida ${el.categoria}`;
+  casella.dataset.z = el.z;
   casella.innerHTML = `<span class="z">${el.z}</span>`;
+  if (estat.mode === "valencies") {
+    casella.insertAdjacentHTML("beforeend", `<span class="simbol">${el.simbol}</span><span class="nom">${el.nom}</span>`);
+  }
 
-  for (const [clau, camp] of Object.entries(CAMPS)) {
+  for (const clau of MODES[estat.mode].camps) {
+    const camp = CAMPS[clau];
     const input = document.createElement("input");
     input.type = "text";
     input.className = `camp-${clau}`;
     input.maxLength = camp.maxLength;
-    input.placeholder = camp.etiqueta;
+    input.placeholder = camp.placeholder || camp.etiqueta;
     input.autocomplete = "off";
     input.spellcheck = false;
     input.dataset.z = el.z;
@@ -147,7 +192,7 @@ function comprova(input, el, casella) {
       casella.title = `${el.nom} (${el.z})`;
       estat.encerts++;
       // Encertat a la primera: un pas més per treure'l de la llista de repàs.
-      if (!casella.dataset.fallat) restaFalla(el.z);
+      if (!casella.dataset.fallat) restaFalla(el.z, estat.mode);
     }
   } else if (!input.classList.contains("incorrecte")) {
     input.classList.add("incorrecte");
@@ -162,11 +207,11 @@ function comprova(input, el, casella) {
 function marcaFallat(casella, z) {
   if (casella.dataset.fallat) return;
   casella.dataset.fallat = "1";
-  sumaFalla(z);
+  sumaFalla(z, estat.mode);
 }
 
 function actualitzaBotoRepas() {
-  const n = elementsAFallar().length;
+  const n = elementsAFallar(estat.mode).length;
   botoRepas.textContent = `Repassa els errors (${n})`;
   botoRepas.disabled = n === 0;
 }
@@ -191,7 +236,7 @@ function actualitzaMarcador() {
   if (!estat.finalitzada && total && estat.encerts === total) {
     estat.finalitzada = true;
     elMissatge.textContent = estat.errors === 0
-      ? "🎉 Perfecte! Tots els símbols i noms correctes sense cap error!"
+      ? `🎉 Perfecte! ${MODES[estat.mode].perfecte}`
       : `🎉 Molt bé! Has completat la taula amb ${estat.errors} error${estat.errors === 1 ? "" : "s"}.`;
     elMissatge.hidden = false;
     acabaPartida(true);
@@ -208,9 +253,14 @@ function inputCasella(casella, camp) {
   return casella.querySelector(`input[data-camp="${camp}"]`);
 }
 
+// Inputs del panell que corresponen al mode actual.
+function inputsPanellActius() {
+  return inputsPanell.filter((i) => !i.hidden);
+}
+
 // Copia l'estat dels inputs de la casella als del panell.
 function sincronitzaPanell() {
-  for (const inp of inputsPanell) {
+  for (const inp of inputsPanellActius()) {
     const origen = inputCasella(casellaActiva, inp.dataset.camp);
     inp.value = origen.value;
     inp.disabled = origen.disabled;
@@ -221,7 +271,7 @@ function sincronitzaPanell() {
 }
 
 function enfocaPanell() {
-  const pendent = inputsPanell.find((i) => !i.disabled);
+  const pendent = inputsPanellActius().find((i) => !i.disabled);
   if (pendent) pendent.focus();
 }
 
@@ -231,8 +281,9 @@ function obrePanell(casella) {
   casella.classList.add("activa");
   casella.scrollIntoView({ block: "nearest", inline: "center" });
 
-  const el = ELEMENTS[inputCasella(casella, "simbol").dataset.z - 1];
-  panellElement.textContent = `Element ${el.z} · Grup ${el.columna} · Període ${el.fila}`;
+  const el = ELEMENTS[casella.dataset.z - 1];
+  const element = estat.mode === "valencies" ? `${el.z} · ${el.simbol} (${el.nom})` : `Element ${el.z}`;
+  panellElement.textContent = `${element} · Grup ${el.columna} · Període ${el.fila}`;
   panellElement.className = `panell-element ${el.categoria}`;
   sincronitzaPanell();
   actualitzaMiniTaula();
@@ -266,11 +317,11 @@ function crearMiniTaula() {
 }
 
 function casellaDeZ(z) {
-  return taula.querySelector(`input[data-camp="simbol"][data-z="${z}"]`)?.parentElement;
+  return taula.querySelector(`.casella[data-z="${z}"]`);
 }
 
 function actualitzaMiniTaula() {
-  const zActiva = casellaActiva ? inputCasella(casellaActiva, "simbol").dataset.z : null;
+  const zActiva = casellaActiva ? casellaActiva.dataset.z : null;
   for (const quadre of miniTaula.querySelectorAll(".mini-buida")) {
     const casella = casellaDeZ(quadre.dataset.z);
     quadre.classList.toggle("mini-feta", !!casella && !casellaPendent(casella));
@@ -289,8 +340,8 @@ function ajustaPanellAlTeclat() {
 // Obre la següent casella pendent (per número atòmic, tornant a l'inici); si no n'hi ha, tanca.
 function obreSeguent() {
   const pendents = [...taula.querySelectorAll(".casella.buida")].filter(casellaPendent);
-  const zActual = casellaActiva ? Number(inputCasella(casellaActiva, "simbol").dataset.z) : 0;
-  const zDe = (c) => Number(inputCasella(c, "simbol").dataset.z);
+  const zActual = casellaActiva ? Number(casellaActiva.dataset.z) : 0;
+  const zDe = (c) => Number(c.dataset.z);
   const altres = pendents.filter((c) => c !== casellaActiva).sort((a, b) => zDe(a) - zDe(b));
   const seguent = altres.find((c) => zDe(c) > zActual) || altres[0];
   if (seguent) obrePanell(seguent);
@@ -307,8 +358,8 @@ panell.addEventListener("submit", (e) => {
   e.preventDefault();
   if (!casellaActiva) return;
   const casella = casellaActiva;
-  const el = ELEMENTS[inputCasella(casella, "simbol").dataset.z - 1];
-  for (const inp of inputsPanell) {
+  const el = ELEMENTS[casella.dataset.z - 1];
+  for (const inp of inputsPanellActius()) {
     const origen = inputCasella(casella, inp.dataset.camp);
     if (origen.disabled) continue;
     origen.value = inp.value;
@@ -375,6 +426,7 @@ function registreDePartida(completada) {
     nom: "",
     data: new Date().toISOString(),
     dificultat: estat.dificultat,
+    mode: estat.mode,
     total: estat.buits.size,
     encerts: estat.encerts,
     errors: estat.errors,
@@ -406,6 +458,7 @@ function desaPartida(partida, nom) {
   if (nom.trim()) recordaNom(partida.nom);
   const desada = afegeixPartida(partida);
   elAvisResultats.textContent = desada ? "" : "No s'ha pogut desar la partida (el navegador no permet guardar dades).";
+  modeRanquing = partida.mode;
   if (partida.dificultat in DIFICULTATS) dificultatRanquing = partida.dificultat;
   mostraResultats(partida.id);
 }
@@ -456,12 +509,20 @@ function formataData(iso) {
   return new Date(iso).toLocaleString("ca-ES", { dateStyle: "short", timeStyle: "short" });
 }
 
+function etiquetaPartida(partida) {
+  const dificultat = ETIQUETES_DIFICULTAT[partida.dificultat] || partida.dificultat;
+  return modeDe(partida) === "valencies" ? `Valències · ${dificultat}` : dificultat;
+}
+
 function mostraResultats(destacat = null) {
   for (const boto of elPestanyes.querySelectorAll("button")) {
     boto.classList.toggle("activa", boto.dataset.dificultat === dificultatRanquing);
   }
+  for (const boto of elPestanyesMode.querySelectorAll("button")) {
+    boto.classList.toggle("activa", boto.dataset.mode === modeRanquing);
+  }
 
-  const top = millors(dificultatRanquing);
+  const top = millors(modeRanquing, dificultatRanquing);
   cosRanquing.replaceChildren(...top.map((p, i) => filaResultat([
     i + 1, celaNom(p), `${p.encerts}/${p.total}`, p.errors, formataTemps(p.segons), formataData(p.data),
   ], p, destacat)));
@@ -471,7 +532,7 @@ function mostraResultats(destacat = null) {
 
   const totes = llegeixHistoric().sort((a, b) => b.data.localeCompare(a.data));
   cosHistoric.replaceChildren(...totes.map((p) => filaResultat([
-    formataData(p.data), celaNom(p), ETIQUETES_DIFICULTAT[p.dificultat] || p.dificultat,
+    formataData(p.data), celaNom(p), etiquetaPartida(p),
     `${p.encerts}/${p.total}`, p.errors, formataTemps(p.segons),
   ], p, destacat)));
   if (!totes.length) {
@@ -480,6 +541,17 @@ function mostraResultats(destacat = null) {
 }
 
 function crearPestanyes() {
+  for (const [clau, mode] of Object.entries(MODES)) {
+    const boto = document.createElement("button");
+    boto.type = "button";
+    boto.textContent = mode.nom;
+    boto.dataset.mode = clau;
+    boto.addEventListener("click", () => {
+      modeRanquing = clau;
+      mostraResultats();
+    });
+    elPestanyesMode.appendChild(boto);
+  }
   for (const [clau, nom] of Object.entries(DIFICULTATS)) {
     const boto = document.createElement("button");
     boto.type = "button";
@@ -502,19 +574,23 @@ function novaPartida(zsRepas = null) {
   tancaPanell();
   elTemps.textContent = formataTemps(0);
 
+  const mode = selectMode.value;
   let buits;
   if (zsRepas) {
     buits = new Set(zsRepas);
-    estat = nouEstat(buits, REPAS);
+    estat = nouEstat(buits, REPAS, mode);
   } else {
     const percentatge = PERCENTATGES[selectDificultat.value];
     const quantitat = Math.round(PREGUNTABLES.length * percentatge);
     buits = new Set(barreja(PREGUNTABLES.map((e) => e.z)).slice(0, quantitat));
-    estat = nouEstat(buits, selectDificultat.value);
+    estat = nouEstat(buits, selectDificultat.value, mode);
   }
   elMissatge.hidden = true;
+  elSubtitol.textContent = MODES[mode].subtitol;
+  for (const inp of inputsPanell) inp.hidden = !MODES[mode].camps.includes(inp.dataset.camp);
 
   taula.innerHTML = "";
+  taula.dataset.mode = mode;
   for (const el of VISIBLES) {
     const casella = buits.has(el.z) ? crearCasellaBuida(el) : crearCasellaPlena(el);
     casella.style.gridRow = el.fila;
@@ -537,6 +613,7 @@ function mostrarSolucions() {
     input.disabled = true;
     input.classList.remove("incorrecte");
     input.classList.add("revelat");
+    casella.classList.add("revelada");
     casella.title = `${el.nom} (${el.z})`;
   }
   tancaPanell();
@@ -556,10 +633,16 @@ function crearLlegenda() {
 }
 
 document.getElementById("nova-partida").addEventListener("click", () => novaPartida());
-botoRepas.addEventListener("click", () => novaPartida(elementsAFallar()));
+botoRepas.addEventListener("click", () => novaPartida(elementsAFallar(selectMode.value)));
 document.getElementById("solucions").addEventListener("click", mostrarSolucions);
 selectDificultat.addEventListener("change", () => {
   dificultatRanquing = selectDificultat.value;
+  novaPartida();
+  mostraResultats();
+});
+selectMode.addEventListener("change", () => {
+  recordaMode(selectMode.value);
+  modeRanquing = selectMode.value;
   novaPartida();
   mostraResultats();
 });

@@ -1,4 +1,4 @@
-# Taula periòdica – Practica símbols i noms
+# Taula periòdica – Practica símbols, noms i valències
 
 Aplicació web per estudiar la taula periòdica. Mostra la taula amb alguns elements buits
 (només amb el número atòmic com a pista) i l'alumne n'ha d'escriure el símbol i el nom.
@@ -35,6 +35,22 @@ i obre <http://localhost:8000>.
   (cal encertar-lo tantes vegades com l'hagis fallat). Aquestes partides surten a l'històric com
   a *Repàs*, però no al rànquing.
 
+## Mode valències
+
+Amb el selector **Practica** es pot triar entre *Símbols i noms* i *Valències*. En el mode
+valències, les caselles buides mostren el símbol i el nom, i cal escriure totes les valències de
+l'element (valències escolars, sense signe):
+
+- Es poden escriure en qualsevol ordre i separades com es vulgui: `2,3`, `3 2` o `23` valen igual
+  (cap valència passa de 8, així que cada xifra compta com una valència).
+- Cal posar-les totes: per al ferro, `2` sol és incorrecte; la resposta és `2,3`.
+- Els gasos nobles tenen valència `0`.
+- Les caselles plenes mostren les valències dels elements coneguts, per veure el patró de cada grup.
+
+Les partides, el rànquing i **Repassa els errors** van separats per mode. La taula de valències és
+a `elements.js` (`VALENCIES`): els valors dels metalls de transició menys habituals poden variar
+segons el llibre de text i es poden canviar fàcilment allà.
+
 ## Al mòbil
 
 En pantalles estretes la taula es mostra compacta (només número atòmic i símbol). Toca una casella
@@ -50,7 +66,7 @@ salta.
 - En acabar una partida (o prémer **Mostrar solucions**) es demana el nom per desar el resultat;
   es recorda l'últim nom usat. Si es comença una partida nova sense desar, es desa amb l'últim nom
   (o "Anònim"). Una partida deixada a mitges es desa com a *abandonada*.
-- Hi ha un rànquing (top 10) per a cada dificultat, ordenat per més encerts, després menys errors i
+- Hi ha un rànquing (top 10) per a cada mode i dificultat, ordenat per més encerts, després menys errors i
   després menys temps. A sota hi ha l'històric complet de partides.
 - Les dades es guarden al navegador (`localStorage`): són per a cada ordinador i navegador.
   Amb **Exportar** es descarrega un fitxer JSON amb les partides i la llista d'elements fallats de

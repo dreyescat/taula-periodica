@@ -79,7 +79,31 @@ function posicioDe(z) {
   return { fila, columna: i - 14 };
 }
 
+// Valències escolars (sense signe) dels elements que es pregunten (Z 1-56 i 72-88).
+// Els metalls de transició poc habituals tenen valors que poden variar segons el llibre de text.
+const VALENCIES = {
+  H: [1],
+  Li: [1], Na: [1], K: [1], Rb: [1], Cs: [1], Fr: [1],
+  Be: [2], Mg: [2], Ca: [2], Sr: [2], Ba: [2], Ra: [2],
+  He: [0], Ne: [0], Ar: [0], Kr: [0], Xe: [0], Rn: [0],
+  B: [3], Al: [3], Ga: [3], In: [3], Tl: [1, 3],
+  C: [2, 4], Si: [4], Ge: [2, 4], Sn: [2, 4], Pb: [2, 4],
+  N: [3, 5], P: [3, 5], As: [3, 5], Sb: [3, 5], Bi: [3, 5],
+  O: [2], S: [2, 4, 6], Se: [2, 4, 6], Te: [2, 4, 6], Po: [2, 4],
+  F: [1], Cl: [1, 3, 5, 7], Br: [1, 3, 5, 7], I: [1, 3, 5, 7], At: [1, 3, 5, 7],
+  Sc: [3], Y: [3],
+  Ti: [2, 3, 4], Zr: [4], Hf: [4],
+  V: [2, 3, 4, 5], Nb: [3, 5], Ta: [5],
+  Cr: [2, 3, 6], Mo: [6], W: [6],
+  Mn: [2, 3, 4, 6, 7], Tc: [4, 7], Re: [4, 6, 7],
+  Fe: [2, 3], Ru: [3, 4], Os: [4, 8],
+  Co: [2, 3], Rh: [3], Ir: [3, 4],
+  Ni: [2, 3], Pd: [2, 4], Pt: [2, 4],
+  Cu: [1, 2], Ag: [1], Au: [1, 3],
+  Zn: [2], Cd: [2], Hg: [1, 2],
+};
+
 const ELEMENTS = DADES_ELEMENTS.map(([simbol, nom], i) => {
   const z = i + 1;
-  return { z, simbol, nom, categoria: categoriaDe(z), ...posicioDe(z) };
+  return { z, simbol, nom, categoria: categoriaDe(z), ...posicioDe(z), valencies: VALENCIES[simbol] || null };
 });

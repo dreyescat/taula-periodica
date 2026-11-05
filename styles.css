@@ -120,6 +120,11 @@ button.secundari { background: white; color: #3949ab; }
 .casella input::placeholder { color: #999; font-weight: normal; }
 .casella input:focus { outline: none; border-style: solid; border-color: #3949ab; }
 
+.casella .valencies { font-size: 0.6rem; font-weight: bold; color: #333; }
+.casella input.camp-valencies { margin-top: 2px; font-size: 0.8rem; }
+/* En mode valències la casella buida ja mostra el símbol i el nom: es fan una mica més petits. */
+.taula[data-mode="valencies"] .casella.buida .simbol { font-size: 1.05rem; margin-top: 0.45rem; }
+
 .casella.buida { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.35) 0 6px, transparent 6px 12px); }
 
 .casella.correcte { box-shadow: inset 0 0 0 3px var(--correcte); }
@@ -316,7 +321,15 @@ button.perill { background: white; color: #c62828; border-color: #c62828; }
   .casella { aspect-ratio: 1; padding: 1px; border-radius: 3px; }
   .casella .z { font-size: 0.5rem; top: 1px; left: 2px; }
   .casella .simbol { font-size: 0.85rem; margin-top: 0.35rem; }
-  .casella .nom, .casella input.camp-nom { display: none; }
+  .casella .nom, .casella .valencies, .casella input.camp-nom { display: none; }
+  /* Valències al mòbil: la casella buida mostra el símbol i s'escriu al panell. */
+  .casella input.camp-valencies { display: none; }
+  .taula[data-mode="valencies"] .casella.buida .simbol { font-size: 0.85rem; margin-top: 0.35rem; }
+  .taula[data-mode="valencies"] .casella.buida { outline: 1px dashed #333; outline-offset: -3px; }
+  .taula[data-mode="valencies"] .casella.buida:has(input.incorrecte) { outline: 2px solid var(--incorrecte); }
+  .taula[data-mode="valencies"] .casella.correcte,
+  .taula[data-mode="valencies"] .casella.revelada { outline: none; }
+  .casella.revelada { box-shadow: inset 0 0 0 3px var(--revelat); }
 
   /* Els inputs de la graella només mostren l'estat: s'escriu al panell. */
   .casella.buida { cursor: pointer; }
