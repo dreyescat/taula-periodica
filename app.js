@@ -15,7 +15,7 @@ const MODES = {
   valencies: {
     nom: "Valències",
     camps: ["valencies"],
-    subtitol: "Escriu les valències dels elements que falten (p. ex. 2,3). Els gasos nobles tenen valència 0.",
+    subtitol: "Escriu les valències dels elements que falten (p. ex. -3,3,5). Els gasos nobles tenen valència 0.",
     perfecte: "Totes les valències correctes sense cap error!",
   },
 };
@@ -92,7 +92,7 @@ function crearCasellaPlena(el) {
     <span class="nom">${el.nom}</span>`;
   // En mode valències es veuen les dels elements coneguts, per descobrir el patró del grup.
   if (estat.mode === "valencies" && el.valencies) {
-    casella.insertAdjacentHTML("beforeend", `<span class="valencies">${el.valencies.join(", ")}</span>`);
+    casella.insertAdjacentHTML("beforeend", `<span class="valencies">${el.valencies.join(",")}</span>`);
   }
   return casella;
 }
@@ -124,13 +124,15 @@ const CAMPS = {
     placeholder: "?",
     maxLength: 15,
     esCorrecte: (valor, el) => mateixesValencies(valor, el.valencies),
-    solucio: (el) => el.valencies.join(", "),
+    solucio: (el) => el.valencies.join(","),
   },
 };
 
-// Cap valència passa de 8, així que cada xifra és una valència: "2,3", "2 3", "3-2" i "23" valen el mateix.
+// Cap valència passa de 8, així que cada xifra (amb el signe menys davant, si en porta) és una
+// valència: "-3,3,5", "3 5 -3", "−3, +3, +5" i "-335" valen el mateix.
 function mateixesValencies(text, valencies) {
-  const escrites = [...new Set((text.match(/\d/g) || []).map(Number))].sort((a, b) => a - b);
+  const valors = (text.match(/[-−–]?\d/g) || []).map((v) => Number(v.replace(/[−–]/, "-")));
+  const escrites = [...new Set(valors)].sort((a, b) => a - b);
   const correctes = [...valencies].sort((a, b) => a - b);
   return escrites.length === correctes.length && escrites.every((v, i) => v === correctes[i]);
 }

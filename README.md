@@ -39,10 +39,11 @@ i obre <http://localhost:8000>.
 
 Amb el selector **Practica** es pot triar entre *Símbols i noms* i *Valències*. En el mode
 valències, les caselles buides mostren el símbol i el nom, i cal escriure totes les valències de
-l'element (valències escolars, sense signe):
+l'element (valències escolars; les negatives amb el signe menys, p. ex. el nitrogen és `-3,3,5`):
 
-- Es poden escriure en qualsevol ordre i separades com es vulgui: `2,3`, `3 2` o `23` valen igual
-  (cap valència passa de 8, així que cada xifra compta com una valència).
+- Es poden escriure en qualsevol ordre i separades com es vulgui: `-3,3,5`, `3 5 -3` o `-335` valen
+  igual (cap valència passa de 8, així que cada xifra, amb el signe menys si en porta, compta com
+  una valència). El signe `+` és opcional.
 - Cal posar-les totes: per al ferro, `2` sol és incorrecte; la resposta és `2,3`.
 - Els gasos nobles tenen valència `0`.
 - Les caselles plenes mostren les valències dels elements coneguts, per veure el patró de cada grup.
